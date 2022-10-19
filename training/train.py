@@ -40,8 +40,8 @@ from datasets import load_dataset
 #jokedata = load_dataset("imdb") #OLD ONE
 
 #filePATH1="/Users/clgl/Github/dadjokes/data_processing/output_jokes_joint.csv"
-filePATH1="/Users/clgl/Github/dadjokes/data_processing/cleaned_dad_jokes.csv"
-filePATH2="/Users/clgl/Github/dadjokes/data_processing/cleaned_jokes.csv"
+filePATH1="../data_processing/cleaned_dad_jokes.csv"
+filePATH2="../data_processing/cleaned_jokes.csv"
 dataset = load_dataset("csv", data_files=[filePATH1,filePATH2], split="train")
 dataset = dataset.rename_column('joke', 'text')
 dataset = dataset.remove_columns("no_of_words")
