@@ -30,7 +30,7 @@ def evaluate(joke):
     #NOTE: to return all score, use top_k=None
     out_raw=classifier(joke)[0]
     print(out_raw)
-    out=out[0]['label']
+    out=out_raw[0]['label']
     print(out)
     if out=='LABEL_1':
         return "not-dadjokes"
