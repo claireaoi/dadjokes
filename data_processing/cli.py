@@ -49,10 +49,11 @@ def jokes(output, limit, max_num_of_words):
     # Requesting req.limit of dad jokes and jokes
     dfs = []
     for subreddit in ["dadjokes", "jokes"]:
-        posts = get_reddits(subreddit, feed="hot", limit=limit)
-        dfs.append(
-            reddits_to_jokes_df(posts, subreddit, max_num_of_words=max_num_of_words)
-        )
+        for feed in ["hot", "new", "top"]:
+            posts = get_reddits(subreddit, feed=feed, limit=limit)
+            dfs.append(
+                reddits_to_jokes_df(posts, subreddit, max_num_of_words=max_num_of_words)
+            )
 
     # Concatenating both dfs
     df = pd.concat(dfs, ignore_index=True)

@@ -43,7 +43,7 @@ def api_jokes(req: JokesRequest):
     """
     Requests req.limit jokes for each subreddit r/Jokes and r/DadJokes,
     since we're filtering by maximum number of words, we might not get
-    exactly req.limit
+    exactly req.limit.
     """
     try:
         # Requesting req.limit of dad jokes and jokes
