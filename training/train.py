@@ -113,6 +113,9 @@ training_args = TrainingArguments(
     optim="adamw_torch"
 )
 
+#1050 steps for 10 epoches now
+
+
 #7---CREATE TRAINER
 # Pass the training arguments to Trainer along with the model, dataset, tokenizer, and data collator.
 trainer = Trainer(
