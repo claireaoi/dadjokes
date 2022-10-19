@@ -24,6 +24,8 @@ MODELPATH="./models/v1"
 from transformers import AutoTokenizer
 import torch
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 2'
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
