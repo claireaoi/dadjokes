@@ -20,6 +20,7 @@ os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 # 'sentence': "Our friends won't buy this analysis, let alone the next one we propose."}
 
 MODELPATH="./models/v1"
+MODELSCRIPTED="./scripted_models/v1.pt"
 
 from transformers import AutoTokenizer
 import torch
@@ -140,7 +141,10 @@ trainer.evaluate()
 #10---SAVE MODEL
 trainer.save_model()
 
-
+#10---SAVE SCRIPTED
+model_trained = AutoModelForSequenceClassification.from_pretrained(MODELPATH)#pad_token_id=tokenizer.eos_token_id)
+model_scripted = torch.jit.script(model_trained)
+model_scripted.save(MODELSCRIPTED)
 
 # ################################################
 # ######## GENERATE
