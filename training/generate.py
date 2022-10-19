@@ -24,11 +24,15 @@ print("#####TESTING joke {}######".format(joke))
 # print("*******TEST 2******")
 
 
-def generate(joke):
-    classifier = pipeline("text-classification",model=MODELPATH, top_k=1)#return_all_scores=True)
-    #NOTE: to return all score, use top_k=None
-    out=classifier(joke)
-    print("output", classifier(joke))
-    return out
+def evaluate(joke):
+    classifier = pipeline("text-classification", model=MODELPATH, top_k=1)#return_all_scores=True)
 
-generate(joke)
+    #NOTE: to return all score, use top_k=None
+    out=classifier(joke)['label']
+    print("output", out)
+    if out=='LABEL_1':
+        return "not-dadjokes"
+    else:
+        return "dadjokes"
+
+print(evaluate(joke))
