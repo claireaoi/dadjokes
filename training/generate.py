@@ -1,7 +1,7 @@
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
 from transformers import AutoTokenizer
 from transformers import pipeline
-
+import torch
 
 MODELPATH="./models/v1/"
 
@@ -16,7 +16,7 @@ joke="I thought the dryer was shrinking my clothes. Turns out it was the refrige
 print("#####TESTING joke {}######".format(joke))
 print("*******TEST 1******")
 jokeTKN = tokenizer.encode(joke, return_tensors = "pt")
-output = model(jokeTKN)['logits'
+output = model(jokeTKN)['logits']
 amax=torch.amax(output, 1).item()
 print(amax)
 
