@@ -1,7 +1,8 @@
 
 #NOTE: need datasets, transformers, torch
 
-
+import os
+os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 #TODO:
 #TODO: DATASET FORMAT
 #TODO: TRAINING ARGUMENT
