@@ -84,6 +84,7 @@ print("#####TRAINING######")
 # Define your training hyperparameters in TrainingArguments.
 #Trainer does not automatically evaluate model performance during training. You’ll need to pass Trainer a function to compute and report metrics. The 🤗 Evaluate library provides a simple accuracy function you can load with the evaluate.load (see this quicktour for more information) function:
 import numpy as np
+no_deprecation_warning=True
 
 training_args = TrainingArguments(
     output_dir=MODELPATH, #The output directory
@@ -95,8 +96,7 @@ training_args = TrainingArguments(
     evaluation_strategy="epoch",
     save_steps=5000, # after # steps model is saved 
     weight_decay=0.01,
-    warmup_steps=200,# number of warmup steps for learning rate scheduler
-    no_deprecation_warning=True #to disable this warning adam optimizer
+    warmup_steps=200# number of warmup steps for learning rate scheduler
 )
 
 #7---CREATE TRAINER
@@ -107,7 +107,7 @@ trainer = Trainer(
     train_dataset=tokenized_jokes["train"],
     eval_dataset=tokenized_jokes["test"],
     tokenizer=tokenizer,
-    data_collator=data_collator,
+    data_collator=data_collator
 )
 
 #TRAINER CLASS https://huggingface.co/docs/transformers/v4.23.1/en/main_classes/trainer#transformers.Trainer
