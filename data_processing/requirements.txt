@@ -8,3 +8,4 @@ fastapi
 uvicorn
 pandas-gbq
 functions-framework==3.*
+re

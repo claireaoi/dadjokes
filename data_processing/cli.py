@@ -35,7 +35,7 @@ def reddit(output, subreddits, feed, limit, max_num_of_words):
         lambda joke: len(joke.split(" "))
     )
     new_df = new_df[new_df["joke_length_in_words"] <= max_num_of_words]
-
+    print(new_df)
     new_df.to_csv(output)
 
 

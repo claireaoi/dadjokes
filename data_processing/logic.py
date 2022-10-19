@@ -6,6 +6,7 @@ import praw
 from tweepy.models import Status as Tweet
 from praw.models.reddit.submission import Submission as RedditPost
 import yaml
+import re
 
 config = yaml.safe_load(open("secrets.yaml"))
 
@@ -21,6 +22,30 @@ def get_twitter_client():
     cli = tweepy.API(twitter_auth)
     return cli
 
+def clean_joke(df):
+    
+    df1 = pd.DataFrame(columns=['joke','label','no_of_words'])
+    df = df.astype(str).apply(lambda x: x.str.encode('ascii', 'ignore').str.decode('ascii'))
+    for i in range (len(df)):
+        myString= str(df.iloc[i]['joke'])
+        
+        # remove white spaces retaining tab spaces.
+        re.sub('\s+',' ',myString)
+        re.sub('\n','',myString)
+        #remove emoji,symbols
+        emoji_pattern = re.compile("["
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           "]+", flags=re.UNICODE)
+        emoji_pattern.sub(r'', myString)
+        myString = ''.join(myString.splitlines())
+        df1.at[i,'joke']= myString
+        df1.at[i,'label']= str(df.iloc[i]['label'])
+        df1.at[i,'no_of_words'] = len(myString)
+        
+    return df1
 
 def get_tweets(user, limit):
     cli = get_twitter_client()
