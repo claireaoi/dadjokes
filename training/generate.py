@@ -2,7 +2,7 @@ from transformers import AutoModelForSequenceClassification, TrainingArguments, 
 from transformers import AutoTokenizer
 import pipeline
 
-MODELPATH="./training/models/v1/"
+MODELPATH="./models/v1/"
 
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 model = AutoModelForSequenceClassification.from_pretrained(MODELPATH)#pad_token_id=tokenizer.eos_token_id)
