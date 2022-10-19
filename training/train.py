@@ -20,7 +20,7 @@ os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 # 'sentence': "Our friends won't buy this analysis, let alone the next one we propose."}
 
 MODELPATH="./models/v1"
-MODELSCRIPTED="./scripted_models/v1.pt"
+MODELSCRIPTED="./scripted_models/v2.pt"
 
 from transformers import AutoTokenizer
 import torch
@@ -102,10 +102,10 @@ training_args = TrainingArguments(
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    num_train_epochs=5,
+    num_train_epochs=10,
     #eval_steps=1000, # Number of update steps between two evaluations.
     evaluation_strategy="epoch",
-    save_steps=5000, # after # steps model is saved 
+    save_steps=500, # after # steps model is saved 
     weight_decay=0.01,
     #warmup_steps=200,# number of warmup steps for learning rate scheduler
     optim="adamw_torch"
@@ -140,11 +140,6 @@ trainer.evaluate()
 
 #10---SAVE MODEL
 trainer.save_model()
-
-#10---SAVE SCRIPTED
-model_trained = AutoModelForSequenceClassification.from_pretrained(MODELPATH)#pad_token_id=tokenizer.eos_token_id)
-model_scripted = torch.jit.script(model_trained)
-model_scripted.save(MODELSCRIPTED)
 
 # ################################################
 # ######## GENERATE
