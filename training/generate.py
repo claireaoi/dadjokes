@@ -16,11 +16,11 @@ joke="I thought the dryer was shrinking my clothes. Turns out it was the refrige
 print("#####TESTING joke {}######".format(joke))
 
 #NEED tokenize?
-#jokeTKN = tokenizer.encode(joke, return_tensors = "pt")
+jokeTKN = tokenizer.encode(joke, return_tensors = "pt")
 #NEED PIPELINE ?
 #classifier = pipeline("text-classification",model='bhadresh-savani/distilbert-base-uncased-emotion', return_all_scores=True)
 
-outputTKN = model(joke)#max_length?
+outputTKN = model(jokeTKN)#max_length?
 
 #WHAT IS THE OUTPUT FORMAT ?
 # Output:
