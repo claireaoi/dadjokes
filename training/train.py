@@ -1,6 +1,14 @@
+
+#NOTE: need datasets, transformers, torch
+
+
+#TODO:
+#TODO: DATASET FORMAT
+#TODO: TRAINING ARGUMENT
+#TODO: IN CLOUD
 from datasets import load_dataset
 
-imdb = load_dataset("imdb")
+jokedata = load_dataset("imdb")
 
 #NOTE ABOUT DATASET FORMAT imdb["test"][0]
 #{
@@ -11,16 +19,22 @@ imdb = load_dataset("imdb")
 from transformers import AutoTokenizer
 
 
+################################################
+######## PRELIMINARIES
+################################################
+print("#####PRELIMINARIES######")
+
 #1---LOAD TOKENIZER
+
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 #Create a preprocessing function to tokenize text and truncate sequences to be no longer than DistilBERT’s maximum input length (512 tokens)
 
 def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=True)
 
-#2---PREPROCESS CHECK
+#2---PREPROCESS CHECK LENGTH
 
-tokenized_imdb = imdb.map(preprocess_function, batched=True)
+tokenized_jokes = jokedata.map(preprocess_function, batched=True)
 
 #Use DataCollatorWithPadding to create a batch of examples.
 # It will also dynamically pad your text to the length of the longest element in its batch, so they are a uniform length. 
@@ -32,12 +46,16 @@ from transformers import DataCollatorWithPadding
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-#4---DYNAMICALLY PAD TEXT
+#5---CREATE MODEL
 #Load DistilBERT with AutoModelForSequenceClassification along with the number of expected labels:
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
 
-#5---CREATE MODEL
 model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2)
+
+################################################
+######## TRAINING
+################################################
+print("#####TRAINING######")
 
 #6---DEFINE HYPERPARAMETERS FOR TRAINING
 # Define your training hyperparameters in TrainingArguments.
@@ -47,37 +65,51 @@ training_args = TrainingArguments(
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    num_train_epochs=5,
+    num_train_epochs=1,#5, #5
     weight_decay=0.01,
 )
-
 
 #7---CREATE TRAINER
 # Pass the training arguments to Trainer along with the model, dataset, tokenizer, and data collator.
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_imdb["train"],
-    eval_dataset=tokenized_imdb["test"],
+    train_dataset=tokenized_jokes["train"],
+    eval_dataset=tokenized_jokes["test"],
     tokenizer=tokenizer,
     data_collator=data_collator,
 )
 
 #TRAINER CLASS https://huggingface.co/docs/transformers/v4.23.1/en/main_classes/trainer#transformers.Trainer
 
-
-
-
-#8---TRAIN TO FINE TUNE
+#8---TRAIN, FINE TUNE
 #Call train() to fine-tune your model.
 
 trainer.train()
 
-#8---EVALUATE
+################################################
+######## EVALUATE
+################################################
+print("#####EVALUATE######")
+
+#9---EVALUATE
 trainer.evaluate()
 
-#9---SAVE MODEL
+#10---SAVE MODEL
 trainer.save_model()
 
+# ################################################
+# ######## GENERATE
+# ################################################
+# print("#####TESTING######")
 
-#9---TEST
+# #11---TEST
+
+
+# joke="I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
+
+# #tokenize
+# jokeTKN = tokenizer.encode(joke, return_tensors = "pt")
+# #generate new line
+
+# outputTKN = model.generate(jokeTKN, do_sample=True, temperature=0.1, max_length=100)
