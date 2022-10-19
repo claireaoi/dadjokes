@@ -100,7 +100,8 @@ training_args = TrainingArguments(
     evaluation_strategy="epoch",
     save_steps=5000, # after # steps model is saved 
     weight_decay=0.01,
-    warmup_steps=200# number of warmup steps for learning rate scheduler
+    #warmup_steps=200,# number of warmup steps for learning rate scheduler
+    optim="adamw_torch"
 )
 
 #7---CREATE TRAINER
@@ -111,8 +112,7 @@ trainer = Trainer(
     train_dataset=tokenized_jokes["train"],
     eval_dataset=tokenized_jokes["test"],
     tokenizer=tokenizer,
-    data_collator=data_collator,
-    optim="adamw_torch"
+    data_collator=data_collator
 )
 
 #TRAINER CLASS https://huggingface.co/docs/transformers/v4.23.1/en/main_classes/trainer#transformers.Trainer
