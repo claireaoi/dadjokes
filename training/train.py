@@ -47,7 +47,7 @@ newPATH="./data_processing/output_jokes_joint_clean.csv"
 
 dataset = load_dataset("csv", data_files=[newPATH], split="train")
 dataset = dataset.rename_column('joke', 'text')
-dataset = dataset.remove_columns("no_of_words")
+dataset = dataset.remove_columns("joke_length_in_words")
 dataset = dataset.remove_columns("Unnamed: 0")
 
 def turn_number_labels(example):
