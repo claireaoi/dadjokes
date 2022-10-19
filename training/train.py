@@ -18,6 +18,7 @@
 # 'label': 1,
 # 'sentence': "Our friends won't buy this analysis, let alone the next one we propose."}
 
+MODELPATH="./models/v1"
 
 from transformers import AutoTokenizer
 import torch
@@ -85,7 +86,7 @@ print("#####TRAINING######")
 import numpy as np
 
 training_args = TrainingArguments(
-    output_dir="./models/v1", #The output directory
+    output_dir=MODELPATH, #The output directory
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
@@ -95,6 +96,7 @@ training_args = TrainingArguments(
     save_steps=5000, # after # steps model is saved 
     weight_decay=0.01,
     warmup_steps=200,# number of warmup steps for learning rate scheduler
+    no_deprecation_warning=True #to disable this warning adam optimizer
 )
 
 #7---CREATE TRAINER
@@ -126,6 +128,8 @@ trainer.evaluate()
 
 #10---SAVE MODEL
 trainer.save_model()
+
+
 
 # ################################################
 # ######## GENERATE
