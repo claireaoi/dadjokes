@@ -28,8 +28,10 @@ def evaluate(joke):
     classifier = pipeline("text-classification", model=MODELPATH, top_k=1)#return_all_scores=True)
 
     #NOTE: to return all score, use top_k=None
-    out=classifier(joke)[0]['label']
-    print("output", out)
+    out_raw=classifier(joke)[0]
+    print(out_raw)
+    out=out[0]['label']
+    print(out)
     if out=='LABEL_1':
         return "not-dadjokes"
     else:
