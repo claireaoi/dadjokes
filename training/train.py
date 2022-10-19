@@ -19,7 +19,7 @@ os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 # 'label': 1,
 # 'sentence': "Our friends won't buy this analysis, let alone the next one we propose."}
 
-MODELPATH="./models/v1"
+MODELPATH="./models/v2"
 MODELSCRIPTED="./scripted_models/v2.pt"
 
 from transformers import AutoTokenizer
@@ -41,9 +41,11 @@ from datasets import load_dataset
 #jokedata = load_dataset("imdb") #OLD ONE
 
 #filePATH1="/Users/clgl/Github/dadjokes/data_processing/output_jokes_joint.csv"
-filePATH1="./data_processing/cleaned_dad_jokes.csv"
-filePATH2="./data_processing/cleaned_jokes.csv"
-dataset = load_dataset("csv", data_files=[filePATH1,filePATH2], split="train")
+#filePATH1="./data_processing/cleaned_dad_jokes.csv"
+#filePATH2="./data_processing/cleaned_jokes.csv"
+newPATH="./data_processing/output_jokes_joint_clean.csv"
+
+dataset = load_dataset("csv", data_files=[newPATH], split="train")
 dataset = dataset.rename_column('joke', 'text')
 dataset = dataset.remove_columns("no_of_words")
 dataset = dataset.remove_columns("Unnamed: 0")
@@ -105,7 +107,7 @@ training_args = TrainingArguments(
     num_train_epochs=10,
     #eval_steps=1000, # Number of update steps between two evaluations.
     evaluation_strategy="epoch",
-    save_steps=500, # after # steps model is saved 
+    save_steps=100, # after # steps model is saved 
     weight_decay=0.01,
     #warmup_steps=200,# number of warmup steps for learning rate scheduler
     optim="adamw_torch"
