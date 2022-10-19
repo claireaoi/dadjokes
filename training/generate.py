@@ -17,8 +17,9 @@ print("*******TEST 1******")
 jokeTKN = tokenizer.encode(joke, return_tensors = "pt")
 outputTKN = model(jokeTKN)#max_length?
 print(outputTKN)
-output=tokenizer.decode(outputTKN)
-print("detokenized OUT:", output)
+print(outputTKN.keys())
+#output=tokenizer.decode(outputTKN)
+#print("detokenized OUT:", output)
 
 
 print("*******TEST 2******")
