@@ -32,17 +32,19 @@ print("#####PRELIMINARIES######")
 #1---LOAD DATASET
 from datasets import load_dataset
 
-#LABEL jokes, dadjokes
-file1PATH="/Users/clgl/Github/dadjokes/data_processing/output_dadjokes.csv"
-file2PATH="/Users/clgl/Github/dadjokes/data_processing/output_jokes.csv"
-jokedata = load_dataset("csv", data_files=[file1PATH,file2PATH], split="train")
-#jokedata = load_dataset("imdb") #OLD ONE
-jokedata = jokedata.rename_column('joke', 'text')
-#print(jokedata.features)
+jokedata = load_dataset("imdb") #OLD ONE
 
-jokedata.train_test_split(test_size=0.2)
-
-#TODO: check RANDOM SPLIT ?
+# filePATH="/Users/clgl/Github/dadjokes/data_processing/output_jokes_joint.csv"
+# dataset = load_dataset("csv", data_files=[filePATH], split="train")
+# dataset = dataset.rename_column('joke', 'text')
+# #dataset = dataset.rename_column('Unnamed: 0', 'idx')
+# dataset = dataset.remove_columns("joke_length_in_words")
+# dataset = dataset.remove_columns("Unnamed: 0")
+# print(dataset.features)
+# #NOTE: label should be  'label': ClassLabel(num_classes=2, names=['not_equivalent', 'equivalent'], names_file=None, id=None),
+# #SPLIT DATA
+# jokedata=dataset.train_test_split(test_size=0.1, shuffle=True)
+# print(jokedata["train"].features)
 
 #1---LOAD TOKENIZER
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
@@ -53,6 +55,7 @@ def preprocess_function(examples):
 
 #2---PREPROCESS CHECK LENGTH
 tokenized_jokes = jokedata.map(preprocess_function, batched=True)
+
 
 
 #Use DataCollatorWithPadding to create a batch of examples.
