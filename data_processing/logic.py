@@ -84,7 +84,18 @@ def reddits_to_jokes_df(
 
     # Creating the new table with the jokes themselves
     new_df = pd.DataFrame(columns=["joke", "label", "joke_length_in_words"])
-    new_df["joke"] = df["text"] + " " + df["content"]
+
+    # Building the joke column, being aware of the last character in the title
+    new_df["joke"] = [None] * len(df)
+    mask_for_last_character = df["text"].str[-1].isin([".", ",", "!", "?"])
+
+    # If the last character is a period, comma, exclamation mark or question mark,
+    # we concatenate with an empty space.
+    new_df["joke"][mask_for_last_character] = df["text"] + " " + df["content"]
+
+    # else, we add a period.
+    new_df["joke"][~mask_for_last_character] = df["text"] + ". " + df["content"]
+
     new_df["label"] = class_label
     new_df["joke_length_in_words"] = new_df["joke"].apply(
         lambda joke: len(joke.split(" "))

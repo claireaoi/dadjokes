@@ -1,4 +1,10 @@
-from logic import get_reddits, reddits_to_df, get_tweets, tweets_to_df
+from logic import (
+    get_reddits,
+    reddits_to_df,
+    get_tweets,
+    reddits_to_jokes_df,
+    tweets_to_df,
+)
 import click
 
 import pandas as pd
@@ -31,6 +37,27 @@ def reddit(output, subreddits, feed, limit, max_num_of_words):
     new_df = new_df[new_df["joke_length_in_words"] <= max_num_of_words]
 
     new_df.to_csv(output)
+
+
+@cli.command()
+@click.argument("output", type=click.File("wb"))
+@click.option("--limit", type=int, default=100)
+@click.option("--max-num-of-words", type=int, default=70)
+def jokes(output, limit, max_num_of_words):
+    reddits = []
+
+    # Requesting req.limit of dad jokes and jokes
+    dfs = []
+    for subreddit in ["dadjokes", "jokes"]:
+        posts = get_reddits(subreddit, feed="hot", limit=limit)
+        dfs.append(
+            reddits_to_jokes_df(posts, subreddit, max_num_of_words=max_num_of_words)
+        )
+
+    # Concatenating both dfs
+    df = pd.concat(dfs, ignore_index=True)
+
+    df.to_csv(output)
 
 
 @cli.command()
