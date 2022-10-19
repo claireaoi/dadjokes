@@ -25,7 +25,7 @@ from transformers import AutoTokenizer
 import torch
 torch.cuda.is_available() #CHECK
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0, 2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -111,7 +111,8 @@ trainer = Trainer(
     train_dataset=tokenized_jokes["train"],
     eval_dataset=tokenized_jokes["test"],
     tokenizer=tokenizer,
-    data_collator=data_collator
+    data_collator=data_collator,
+    optim="adamw_torch"
 )
 
 #TRAINER CLASS https://huggingface.co/docs/transformers/v4.23.1/en/main_classes/trainer#transformers.Trainer
