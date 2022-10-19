@@ -73,3 +73,22 @@ def reddits_to_df(submissions: Iterable[RedditPost]):
         }
         for subm in submissions
     )
+
+
+def reddits_to_jokes_df(
+    submissions: Iterable[RedditPost],
+    class_label: str = None,
+    max_num_of_words: int = 70,
+) -> pd.DataFrame:
+    df = reddits_to_df(submissions)
+
+    # Creating the new table with the jokes themselves
+    new_df = pd.DataFrame(columns=["joke", "label", "joke_length_in_words"])
+    new_df["joke"] = df["text"] + " " + df["content"]
+    new_df["label"] = class_label
+    new_df["joke_length_in_words"] = new_df["joke"].apply(
+        lambda joke: len(joke.split(" "))
+    )
+    new_df = new_df[new_df["joke_length_in_words"] <= max_num_of_words]
+
+    return new_df

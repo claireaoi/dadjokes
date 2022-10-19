@@ -21,7 +21,7 @@ def reddit(output, subreddits, feed, limit, max_num_of_words):
         reddits += get_reddits(subr, feed, limit)
     df = reddits_to_df(reddits)
 
-    # Creatign the new table with the jokes themselves
+    # Creating the new table with the jokes themselves
     new_df = pd.DataFrame(columns=["joke", "label", "joke_length_in_words"])
     new_df["joke"] = df["text"] + " " + df["content"]
     new_df["label"] = subreddits[0]
