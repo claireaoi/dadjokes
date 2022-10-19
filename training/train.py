@@ -23,6 +23,7 @@ MODELPATH="./models/v1"
 
 from transformers import AutoTokenizer
 import torch
+torch.cuda.is_available() #CHECK
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 2'
 
