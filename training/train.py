@@ -6,9 +6,7 @@
 #TODO: DATASET FORMAT
 #TODO: TRAINING ARGUMENT
 #TODO: IN CLOUD
-from datasets import load_dataset
 
-jokedata = load_dataset("imdb")
 
 #NOTE ABOUT DATASET FORMAT imdb["test"][0]
 #{
@@ -22,15 +20,31 @@ jokedata = load_dataset("imdb")
 
 
 from transformers import AutoTokenizer
+import torch
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 ################################################
 ######## PRELIMINARIES
 ################################################
 print("#####PRELIMINARIES######")
+#1---LOAD DATASET
+from datasets import load_dataset
+
+#LABEL jokes, dadjokes
+file1PATH="/Users/clgl/Github/dadjokes/data_processing/output_dadjokes.csv"
+file2PATH="/Users/clgl/Github/dadjokes/data_processing/output_jokes.csv"
+jokedata = load_dataset("csv", data_files=[file1PATH,file2PATH], split="train")
+#jokedata = load_dataset("imdb") #OLD ONE
+jokedata = jokedata.rename_column('joke', 'text')
+#print(jokedata.features)
+
+jokedata.train_test_split(test_size=0.2)
+
+#TODO: check RANDOM SPLIT ?
 
 #1---LOAD TOKENIZER
-
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 #Create a preprocessing function to tokenize text and truncate sequences to be no longer than DistilBERT’s maximum input length (512 tokens)
 
@@ -38,8 +52,8 @@ def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=True)
 
 #2---PREPROCESS CHECK LENGTH
-
 tokenized_jokes = jokedata.map(preprocess_function, batched=True)
+
 
 #Use DataCollatorWithPadding to create a batch of examples.
 # It will also dynamically pad your text to the length of the longest element in its batch, so they are a uniform length. 
@@ -64,14 +78,20 @@ print("#####TRAINING######")
 
 #6---DEFINE HYPERPARAMETERS FOR TRAINING
 # Define your training hyperparameters in TrainingArguments.
+#Trainer does not automatically evaluate model performance during training. You’ll need to pass Trainer a function to compute and report metrics. The 🤗 Evaluate library provides a simple accuracy function you can load with the evaluate.load (see this quicktour for more information) function:
+import numpy as np
 
 training_args = TrainingArguments(
     output_dir="./models/v1", #The output directory
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    num_train_epochs=1,#5, #5
+    num_train_epochs=5,
+    #eval_steps=1000, # Number of update steps between two evaluations.
+    evaluation_strategy="epoch",
+    save_steps=5000, # after # steps model is saved 
     weight_decay=0.01,
+    warmup_steps=200,# number of warmup steps for learning rate scheduler
 )
 
 #7---CREATE TRAINER
@@ -96,6 +116,7 @@ trainer.train()
 ######## EVALUATE
 ################################################
 print("#####EVALUATE######")
+#TODO: COULD ADD EVALUATION https://huggingface.co/docs/transformers/training#finetune-with-trainer
 
 #9---EVALUATE
 trainer.evaluate()
