@@ -37,19 +37,25 @@ print("#####PRELIMINARIES######")
 #1---LOAD DATASET
 from datasets import load_dataset
 
-jokedata = load_dataset("imdb") #OLD ONE
+#jokedata = load_dataset("imdb") #OLD ONE
 
-# filePATH="/Users/clgl/Github/dadjokes/data_processing/output_jokes_joint.csv"
-# dataset = load_dataset("csv", data_files=[filePATH], split="train")
-# dataset = dataset.rename_column('joke', 'text')
-# #dataset = dataset.rename_column('Unnamed: 0', 'idx')
-# dataset = dataset.remove_columns("joke_length_in_words")
-# dataset = dataset.remove_columns("Unnamed: 0")
-# print(dataset.features)
-# #NOTE: label should be  'label': ClassLabel(num_classes=2, names=['not_equivalent', 'equivalent'], names_file=None, id=None),
-# #SPLIT DATA
-# jokedata=dataset.train_test_split(test_size=0.1, shuffle=True)
-# print(jokedata["train"].features)
+#filePATH1="/Users/clgl/Github/dadjokes/data_processing/output_jokes_joint.csv"
+filePATH1="/Users/clgl/Github/dadjokes/data_processing/cleaned_dad_jokes.csv"
+filePATH2="/Users/clgl/Github/dadjokes/data_processing/cleaned_jokes.csv"
+dataset = load_dataset("csv", data_files=[filePATH1,filePATH2], split="train")
+dataset = dataset.rename_column('joke', 'text')
+dataset = dataset.remove_columns("no_of_words")
+dataset = dataset.remove_columns("Unnamed: 0")
+
+def turn_number_labels(example):
+    example["label"] = 1 if example["label"]=="dadjokes" else 0
+    return example
+dataset = dataset.map(turn_number_labels)
+
+print("CHECK LABELS {} {}".format(dataset["label"][0],dataset["label"][1]))
+print(dataset.features)
+jokedata=dataset.train_test_split(test_size=0.1, shuffle=True)
+print(jokedata["train"].features)
 
 #1---LOAD TOKENIZER
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
@@ -63,7 +69,7 @@ tokenized_jokes = jokedata.map(preprocess_function, batched=True)
 
 
 
-#Use DataCollatorWithPadding to create a batch of examples.
+#Use DataCollatorWithPadding tcreate a batch of examples.
 # It will also dynamically pad your text to the length of the longest element in its batch, so they are a uniform length. 
 # While it is possible to pad your text in the tokenizer function by setting padding=True, dynamic padding is more efficient.
 
