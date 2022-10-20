@@ -2,6 +2,10 @@
 .vscode
 secrets.yaml
 ./training/models/*
+
+# Let's ignore the model and see if it works.
+model_deployment/dad2
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

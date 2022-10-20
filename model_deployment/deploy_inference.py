@@ -1,36 +1,85 @@
 from functools import cache
+from pathlib import Path
+
 from fastapi import FastAPI
 from pydantic import BaseModel
-# from google.cloud import storage
-import torch
+from google.cloud import storage
 import requests
-# import re
+
+from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
+from transformers import AutoTokenizer
+from transformers import pipeline
+import torch
+
+test_joke = "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
 
 app = FastAPI()
 
+
+def download_all_files_from_folder_in_bucket(bucket_name: str, folder_in_bucket: str):
+    """
+    Downloads all the contents of the bucket to the provided path.
+    """
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=folder_in_bucket)  # Get list of files
+    for blob in blobs:
+        if blob.name.endswith("/"):
+            continue
+        file_split = blob.name.split("/")
+        directory = "/".join(file_split[0:-1])
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        blob.download_to_filename(blob.name)
+
+
 @cache
-def load_model(model_path):
-    # bucket, path = re.match(r"gs://([^/]+)/(.+)", model_path).groups()
-    # clf_bytes = storage.Client().bucket(bucket).blob(path).download_as_bytes()
-    _model = requests.get(model_path)
-    open("model.pt", "wb").write(_model.content)
-    model = torch.jit.load("model.pt")
-    return model
+def load_model(bucket_name: str = "daddy-bucket", folder_in_bucket: str = "dad2"):
+    # Download the contents of the bucket provided.
+    if not Path(f"./{folder_in_bucket}").exists():
+        download_all_files_from_folder_in_bucket(bucket_name, folder_in_bucket)
+
+    model_path = f"./{folder_in_bucket}"
+    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+
+    return model, tokenizer
+
+
+def process(
+    joke: str, model: AutoModelForSequenceClassification, tokenizer: AutoTokenizer
+) -> torch.Tensor:
+    """
+    Tokenizes the joke, passes it through the model
+    and returns the logits.
+    """
+    jokeTKN = tokenizer.encode(joke, return_tensors="pt")
+    out = model(jokeTKN)["logits"]
+    print(out.shape)
+
+    return out
 
 
 class PredictRequest(BaseModel):
-    model: str  # gs://path/to/model.pkl
+    bucket_name: str  # gs://daddy-bucket
+    model_version: str  # dad2
     input_joke: str
 
 
 @app.post("/predict")
 def predict(req: PredictRequest):
-    classifier = load_model(req.model) # so we can indicate the model url via REST
-    # classifier = load_model('https://storage.googleapis.com/modelbucket1241241/dummy_model_jit.pt')
+    classifier, tokenizer = load_model(req.bucket_name, req.model_version)
+
     classifier.eval()
-    prediction = torch.argmax(classifier(req.input_joke))
+
+    logits = process(req.input_joke, classifier, tokenizer)
+    print(logits)
+    probits = torch.softmax(logits, 1)
+    print(probits)
+    prediction = torch.argmax(logits)
+
     if prediction:
-        answer = f'{req.input_joke} IS a dad joke :) '
+        answer = f"{req.input_joke} IS a dad joke :) "
     else:
-        answer = f'{req.input_joke} IS NOT a dad joke :( '
-    return {"AI opinion": answer}
+        answer = f"{req.input_joke} IS NOT a dad joke :( "
+
+    return {"AI opinion": answer, "confidence": probits[0, 1].item()}

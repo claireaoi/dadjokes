@@ -3,3 +3,4 @@ gcsfs
 fastapi
 uvicorn
 torch
+transformers
