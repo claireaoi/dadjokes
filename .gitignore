@@ -1,7 +1,7 @@
 .DS_Store
 .vscode
 secrets.yaml
-
+./training/models/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
