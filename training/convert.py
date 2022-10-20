@@ -2,28 +2,44 @@ import transformers
 import torch
 from transformers import AutoModelForSequenceClassification,AutoTokenizer
 
-MODELPATH="./models/v1"
+
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+
+# Tokenizing input text
+text = "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
+tokenized_text =tokenizer.encode(text)
+print(tokenized_text)
+# Creating a dummy input
+dummy_input = torch.tensor(tokenized_text).unsqueeze(0)
+print(dummy_input.shape)
+MODELPATH="./models/v1"
 model = AutoModelForSequenceClassification.from_pretrained(MODELPATH)#pad_token_id=tokenizer.eos_token_id)
 
-model_scripted = torch.jit.script(model)
-model_scripted.save("model_deployment/model_v1.pt")
+# The model needs to be in evaluation mode
+model.eval()
 
-# class Daddy(torch.nn.Module):
+# Creating the trace
+traced_model = torch.jit.trace(model, dummy_input,strict=False)
+#TODO: make output not dictionary
+torch.jit.save(traced_model, "dadv1.pt")
 
-#     def __init__(self):
-#         super(Daddy, self).__init__()
+#model_scripted = torch.jit.script(model)
+#model_scripted.save("./model_deployment/model_v1.pt")
 
-#         self.linear1 = torch.nn.Linear(100, 200)
-#         self.activation = torch.nn.ReLU()
-#         self.linear2 = torch.nn.Linear(200, 10)
-#         self.softmax = torch.nn.Softmax()
+class Daddy(torch.nn.Module):
+    def __init__(self):
+        super(Daddy, self).__init__()
 
-#     def forward(self, x):
-#         x = self.linear1(x)
-#         x = self.activation(x)
-#         x = self.linear2(x)
-#         x = self.softmax(x)
-#         return x
+        self.distilBert = AutoModelForSequenceClassification.from_pretrained(MODELPATH)
+    def forward(self, x):
+        #TOKENIZED INPUT
+        x = self.distilBert(torch.tensor(x))
+        x = model(x)['logits'] #TENSOR!
+        return x
 
+joke="I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
+jokeTKN=tokenizer.encode(joke, return_tensors = "pt")
+
+dad=Daddy()
+print(dad(jokeTKN))
 
