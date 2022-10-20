@@ -7,11 +7,12 @@ from google.cloud import storage
 import requests
 
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
-from transformers import AutoTokenizer
+from transformers import PreTrainedTokenizerFast, AutoTokenizer
 from transformers import pipeline
 import torch
 
-test_joke = "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
+test_dad_joke = "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator all along."
+test_not_dad_joke = "What was Robin Hood's favourite variety of font? Sans-sheriff"
 
 app = FastAPI()
 
@@ -39,7 +40,9 @@ def load_model(bucket_name: str = "daddy-bucket", folder_in_bucket: str = "dad2"
         download_all_files_from_folder_in_bucket(bucket_name, folder_in_bucket)
 
     model_path = f"./{folder_in_bucket}"
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+
+    tokenizer = PreTrainedTokenizerFast(tokenizer_file=f"{model_path}/tokenizer.json")
+    # tokenizer = AutoTokenizer.from_pretrained(f"{model_path}/tokenizer.json")
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
     return model, tokenizer
